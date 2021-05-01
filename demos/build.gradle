@@ -1,9 +1,19 @@
 plugins {
     id 'com.titanrobotics2022.java-common-conventions'
+
+    // Uncomment this line to build an executable from a demo:
+    // id 'com.titanrobotics2022.java-application-conventions'
 }
 
 dependencies {
     implementation project(':lib')
 }
+
+/*
+application {
+    // Set main class (if building an executable):
+    mainClass = 'com.titanrobotics2022.demos.myDemo.Main'
+}
+*/
 
 project.archivesBaseName = 'titan-algorithms-demos'
