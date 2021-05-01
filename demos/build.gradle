@@ -1,0 +1,9 @@
+plugins {
+    id 'com.titanrobotics2022.java-common-conventions'
+}
+
+dependencies {
+    implementation project(':lib')
+}
+
+project.archivesBaseName = 'titan-algorithms-demos'

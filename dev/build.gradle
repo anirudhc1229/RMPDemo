@@ -1,0 +1,14 @@
+plugins {
+    id 'com.titanrobotics2022.java-application-conventions'
+}
+
+dependencies {
+    implementation project(':lib')
+}
+
+application {
+    // Define the main class for the application.
+    mainClass = 'com.titanrobotics2022.dev.Main'
+}
+
+project.archivesBaseName = 'titan-algorithms-dev'

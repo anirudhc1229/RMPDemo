@@ -1,0 +1,9 @@
+plugins {
+    id 'com.titanrobotics2022.java-library-conventions'
+}
+
+dependencies {
+    api 'com.github.swri-robotics:bag-reader-java:1.10.3'
+}
+
+project.archivesBaseName = 'titan-algorithms-lib'
