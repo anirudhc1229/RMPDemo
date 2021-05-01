@@ -10,6 +10,7 @@ plugins {
 repositories {
     // Use Maven Central for resolving dependencies.
     mavenCentral()
+    maven{ url "https://frcmaven.wpi.edu:443/artifactory/release" }
 }
 
 dependencies {
