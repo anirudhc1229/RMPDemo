@@ -3,6 +3,17 @@ plugins {
 }
 
 dependencies {
+    // Extra Libraries
+    // Graphing and Chart Visualization Libraries
+    api 'org.knowm.xchart:xchart:3.8.0'
+    api 'org.jfree:jfreechart:1.5.2'
+    api 'org.jfree:org.jfree.chart.fx:2.0.1'
+    api 'de.gsi.chart:chartfx-chart:11.1.5'
+
+    // Linear Algebra Library
+    api 'org.ejml:ejml-all:0.40'
+
+    // Portable Robotics Data Format
     api 'com.github.swri-robotics:bag-reader-java:1.10.3'
 
     // WPILIB Dependencies
