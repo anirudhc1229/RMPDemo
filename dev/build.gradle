@@ -4,6 +4,12 @@ plugins {
 
 dependencies {
     implementation project(':lib')
+
+    // Graphing and Chart Visualization Libraries   
+    implementation 'org.knowm.xchart:xchart:3.8.0'
+    implementation 'org.jfree:jfreechart:1.5.2'
+    implementation 'org.jfree:org.jfree.chart.fx:2.0.1'
+    implementation 'de.gsi.chart:chartfx-chart:11.1.5'
 }
 
 application {
