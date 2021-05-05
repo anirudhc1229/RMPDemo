@@ -4,7 +4,7 @@ plugins {
 
 dependencies {
     // Extra Libraries
-    // Apache Common Math Library
+    // Apache Commons Math Library
     api 'org.apache.commons:commons-math3:3.+'
 
     // Linear Algebra Library
