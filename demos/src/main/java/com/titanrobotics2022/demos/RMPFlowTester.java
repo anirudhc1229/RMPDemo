@@ -120,7 +120,8 @@ public class RMPFlowTester{
 		//f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		f.setResizable(false);
 		
-		final double xLf = xL, xHf = xH, yLf = yL, yHf = yH, vLf = vL, vHf = vH, aLf = aL, aHf = aH;
+		//final double xLf = xL, xHf = xH, yLf = yL, yHf = yH, vLf = vL, aLf = aL, aHf = aH;
+		final double vHf = vH;
 		JPanel panel = new JPanel() {
             @Override
             public void paintComponent(Graphics g) {
