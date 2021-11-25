@@ -1,4 +1,4 @@
-package frc.robot.motion.generation.rmpflow;
+package com.titanrobotics2022.motion.generation.rmpflow;
 
 import java.util.function.BiFunction;
 import java.util.function.Function;

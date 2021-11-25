@@ -1,4 +1,7 @@
-package frc.robot.motion.generation.rmpflow;
+package com.titanrobotics2022.motion.generation.rmpflow.rmps;
+
+import com.titanrobotics2022.motion.generation.rmpflow.RMPLeaf;
+import com.titanrobotics2022.motion.generation.rmpflow.RMPNode;
 
 import org.ejml.simple.SimpleMatrix;
 

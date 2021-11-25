@@ -1,6 +1,8 @@
-package frc.robot.motion.generation.rmpflow;
+package com.titanrobotics2022.motion.generation.rmpflow.rmps;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import com.titanrobotics2022.motion.generation.rmpflow.RMPRoot;
 
 import org.ejml.simple.SimpleMatrix;
 import org.junit.jupiter.api.Test;
