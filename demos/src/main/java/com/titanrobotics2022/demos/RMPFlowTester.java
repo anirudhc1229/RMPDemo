@@ -49,7 +49,7 @@ public class RMPFlowTester{
 		SimpleMatrix x_ddot;
 		
 		//Simulation
-		ArrayList<Double> simulationData = new ArrayList<Double>();
+		ArrayList<Double> simulationData = new ArrayList<Double>();	
 		for(int i = 0; i < 4500/5; i++)
 		{
 			x_ddot = r.solve(x, x_dot);
