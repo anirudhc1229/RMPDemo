@@ -9,4 +9,5 @@
 
 rootProject.name = 'Titan-Algorithms'
 
-include('lib', 'demos', 'dev')
+// include('lib', 'demos', 'dev')
+include('lib')

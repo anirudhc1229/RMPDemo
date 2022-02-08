@@ -1,5 +1,6 @@
 plugins {
     id 'com.titanrobotics2022.java-library-conventions'
+    id 'com.titanrobotics2022.java-application-conventions'
 }
 
 dependencies {
@@ -17,6 +18,10 @@ dependencies {
     api 'edu.wpi.first.wpilibj:wpilibj-java:2021.3.1'
     api 'edu.wpi.first.wpilibNewCommands:wpilibNewCommands-java:2021.3.1'
     api 'edu.wpi.first.wpimath:wpimath-java:2021.3.1'
+}
+
+application {
+    mainClass = 'com.titanrobotics2022.demos.RunDemo'
 }
 
 project.archivesBaseName = 'titan-algorithms-lib'
