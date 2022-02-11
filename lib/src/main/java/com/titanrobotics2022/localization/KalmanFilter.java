@@ -50,9 +50,12 @@ public class KalmanFilter {
                 alpha *= time / i;
                 scale(alpha, means[j], v);
                 scale(alpha, covs[j], m);
-                addEquals(zs[i], zs[j]);
-                addEquals(precs[i], precs[j]);
+                addEquals(means[i], means[j]);
+                addEquals(covs[i], covs[j]);
             }
+            alpha *= time / zs.length;
+            scale(alpha, drift, m);
+            addEquals(covs[i], m);
         }
         for(int i=0; i<zs.length; i++){
             invert(covs[i], precs[i]);
