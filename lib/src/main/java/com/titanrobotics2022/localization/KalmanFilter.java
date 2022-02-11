@@ -109,4 +109,18 @@ public class KalmanFilter {
         getCov(order, res);
         return res;
     }
+
+    public void setPred(int order, DMatrix2 pred) {
+        mult(precs[order], pred, zs[order]);
+        bad_mean |= 1<<order;
+    }
+    public void setCov(int order, DMatrix2x2 cov) {
+        invert(cov, precs[order]);
+        scale(1, cov, covs[order]);
+        bad_cov ^= (bad_cov >> order) & 1;
+    }
+    public void setPrec(int order, DMatrix2x2 prec) {
+        scale(1, prec, precs[order]);
+        bad_cov |= 1<<order;
+    }
 }
