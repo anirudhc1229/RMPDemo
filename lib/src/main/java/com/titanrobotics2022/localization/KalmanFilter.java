@@ -12,7 +12,8 @@ public class KalmanFilter {
     private final DMatrix2x2 drift;
     private final DMatrix2 v = new DMatrix2();
     private final DMatrix2x2 m = new DMatrix2x2();
-    private int inconsistent;
+    private int bad_cov;
+    private int bad_mean;
 
     public KalmanFilter(int order, DMatrix2x2 drift) {
         if(order < 0)
@@ -28,14 +29,16 @@ public class KalmanFilter {
             means[i] = new DMatrix2();
             covs[i] = new DMatrix2x2();
         }
-        inconsistent = (1<<(order+1))-1;
+        bad_cov = (1<<(order+1))-1;
+        bad_mean = (1<<(order+1))-1;
     }
 
     public void update(int order, DMatrix2 pred, DMatrix2x2 prec) {
         mult(prec, pred, v);
         addEquals(zs[order], v);
         addEquals(precs[order], prec);
-        inconsistent |= 1<<order;
+        bad_cov |= 1<<order;
+        bad_mean |= 1<<order;
     }
 
     public void step(double time) {
@@ -61,16 +64,33 @@ public class KalmanFilter {
             invert(covs[i], precs[i]);
             mult(precs[i], means[i], zs[i]);
         }
-        inconsistent = 0;
+        bad_cov = 0;
+        bad_mean = 0;
+    }
+
+    public void calcCov(int order) {
+        if(((bad_cov >> order) & 1) == 1){
+            invert(precs[order], covs[order]);
+            bad_cov ^= 1<<order;
+        }
+    }
+
+    public void calcMean(int order) {
+        if(((bad_mean >> order) & 1) == 1){
+            calcCov(order);
+            mult(covs[order], zs[order], means[order]);
+            bad_mean ^= 1;
+        }
     }
 
     public void getPred(int order, DMatrix2 out) {
-        if(((inconsistent >> order) & 1) == 1){
-            invert(precs[order], covs[order]);
-            mult(covs[order], zs[order], means[order]);
-            inconsistent ^= 1<<order;
+        if(((bad_mean >> order) & 1) == 1){
+            calcCov(order);
+            mult(covs[order], zs[order], out);
         }
-        scale(1, means[order], out);
+        else{
+            scale(1, means[order], out);
+        }
     }
     public DMatrix2 getPred(int order) {
         DMatrix2 res = new DMatrix2();
@@ -79,12 +99,10 @@ public class KalmanFilter {
     }
 
     public void getCov(int order, DMatrix2x2 out) {
-        if(((inconsistent >> order) & 1) == 1){
-            invert(precs[order], covs[order]);
-            mult(covs[order], zs[order], means[order]);
-            inconsistent ^= 1<<order;
-        }
-        scale(1, covs[order], out);
+        if(((bad_cov >> order) & 1) == 1)
+            invert(precs[order], out);
+        else
+            scale(1, covs[order], out);
     }
     public DMatrix2x2 getCov(int order) {
         DMatrix2x2 res = new DMatrix2x2();
