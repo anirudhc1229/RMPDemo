@@ -89,7 +89,7 @@ public class KalmanFilter {
             mult(covs[order], zs[order], out);
         }
         else{
-            scale(1, means[order], out);
+            out.set(means[order]);
         }
     }
     public DMatrix2 getPred(int order) {
@@ -102,7 +102,7 @@ public class KalmanFilter {
         if(((bad_cov >> order) & 1) == 1)
             invert(precs[order], out);
         else
-            scale(1, covs[order], out);
+            out.set(covs[order]);
     }
     public DMatrix2x2 getCov(int order) {
         DMatrix2x2 res = new DMatrix2x2();
@@ -116,11 +116,11 @@ public class KalmanFilter {
     }
     public void setCov(int order, DMatrix2x2 cov) {
         invert(cov, precs[order]);
-        scale(1, cov, covs[order]);
+        covs[order].set(cov);
         bad_cov ^= (bad_cov >> order) & 1;
     }
     public void setPrec(int order, DMatrix2x2 prec) {
-        scale(1, prec, precs[order]);
+        precs[order].set(prec);
         bad_cov |= 1<<order;
     }
 }
