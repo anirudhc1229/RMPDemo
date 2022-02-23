@@ -44,7 +44,7 @@ public class KalmanFilter {
     public void step(double time) {
         double alpha;
         for(int i=0; i<zs.length; i++){
-            invert(precs[i], covs[i]);
+            safeInvert(precs[i], covs[i]);
             mult(covs[i], zs[i], means[i]);
         }
         for(int i=1; i<zs.length; i++){
@@ -61,7 +61,7 @@ public class KalmanFilter {
             addEquals(covs[i], m);
         }
         for(int i=0; i<zs.length; i++){
-            invert(covs[i], precs[i]);
+            safeInvert(covs[i], precs[i]);
             mult(precs[i], means[i], zs[i]);
         }
         bad_cov = 0;
@@ -70,7 +70,7 @@ public class KalmanFilter {
 
     public void calcCov(int order) {
         if(((bad_cov >> order) & 1) == 1){
-            invert(precs[order], covs[order]);
+            safeInvert(precs[order], covs[order]);
             bad_cov ^= 1<<order;
         }
     }
@@ -100,7 +100,7 @@ public class KalmanFilter {
 
     public void getCov(int order, DMatrix2x2 out) {
         if(((bad_cov >> order) & 1) == 1)
-            invert(precs[order], out);
+            safeInvert(precs[order], out);
         else
             out.set(covs[order]);
     }
@@ -115,12 +115,19 @@ public class KalmanFilter {
         bad_mean |= 1<<order;
     }
     public void setCov(int order, DMatrix2x2 cov) {
-        invert(cov, precs[order]);
+        safeInvert(cov, precs[order]);
         covs[order].set(cov);
         bad_cov ^= (bad_cov >> order) & 1;
     }
     public void setPrec(int order, DMatrix2x2 prec) {
         precs[order].set(prec);
         bad_cov |= 1<<order;
+    }
+
+    private static void safeInvert(DMatrix2x2 a, DMatrix2x2 inv) {
+        if(!invert(a, inv)){
+            double sigma = 1 / (a.a11 + a.a22);
+            scale(sigma * sigma, a, inv);
+        }
     }
 }
