@@ -1,6 +1,6 @@
 plugins {
     id 'com.titanrobotics2022.java-library-conventions'
-    id 'com.titanrobotics2022.java-application-conventions'
+    id 'maven-publish'
 }
 
 dependencies {
@@ -20,8 +20,32 @@ dependencies {
     api 'edu.wpi.first.wpimath:wpimath-java:2021.3.1'
 }
 
-application {
-    mainClass = 'com.titanrobotics2022.demos.RunDemo'
+task sourceJar(type: Jar) {
+    classifier "sources"
+    from sourceSets.main.allJava
+}
+
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    classifier "javadoc"
+    from javadoc.destinationDir
+}
+
+publishing{
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+            groupId 'com.titanrobotics2022.titan-algorithms'
+            artifactId 'titan-algorithms-lib'
+            version '0.0.0'
+
+            artifact(sourceJar) {
+                classifier "sources"
+            }
+            artifact(javadocJar) {
+                classifier "javadoc"
+            }
+        }
+    }
 }
 
 project.archivesBaseName = 'titan-algorithms-lib'
