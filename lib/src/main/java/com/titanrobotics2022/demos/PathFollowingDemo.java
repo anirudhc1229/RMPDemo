@@ -3,7 +3,6 @@ package com.titanrobotics2022.demos;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.geom.Rectangle2D;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
@@ -22,17 +21,17 @@ public class PathFollowingDemo {
     public PathFollowingDemo() {
 
         RMPRoot r = new RMPRoot("root");
-        SimpleMatrix x = new SimpleMatrix(1, 2, false, new double[] { 5, 5 });
+        SimpleMatrix x = new SimpleMatrix(1, 2, false, new double[] { 50, 50 });
         SimpleMatrix x_dot = new SimpleMatrix(1, 2, false, new double[] { 0, 0 });
         SimpleMatrix x_ddot;
-        double v = 1, P = 0.5, I = 0, A = 0, B = 0, K = 1, h = 1;
+        double v = 0.1, P = 0.1, I = 1, A = 0, B = 0, K = 1, h = 1;
 
-        SimpleMatrix goal = new SimpleMatrix(1, 2, false, new double[] { 500, 500 });
+        SimpleMatrix goal = new SimpleMatrix(1, 2, false, new double[] { 100, 100 });
         Path path = new LinearSegment(new Point(x.get(0), x.get(1)), new Point(goal.get(0), goal.get(1)));
         PathFollowing pathFollower = new PathFollowing("Path Following Demo", r, path, v, P, I, A, B, K, h);
 
         ArrayList<Double> simulationData = new ArrayList<Double>();
-        double E = 1;
+        double E = 0.1;
         while (x.minus(goal).normF() > E) {
             x_ddot = r.solve(x, x_dot);
             double[] newState = solveIntegration(0.5, x_ddot, x_dot, x);

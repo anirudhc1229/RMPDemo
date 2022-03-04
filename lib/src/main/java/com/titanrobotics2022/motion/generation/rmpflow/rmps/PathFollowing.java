@@ -35,7 +35,6 @@ public class PathFollowing extends RMPLeaf {
     // y_dot: Current velocity towards path
     // Compute weight matrix
     // Importance of these acceleration changes
-    // Likely Hessian
     // Matrix of second partial derivatives
     // Pullback desired combined acceleration vector and weight matrix
 

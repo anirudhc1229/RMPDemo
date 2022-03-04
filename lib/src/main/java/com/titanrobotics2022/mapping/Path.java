@@ -72,7 +72,6 @@ public interface Path {
      * speed of 1.
      * 
      * @param distance The distance along this path.
-     * @param speed    The speed of motion along this path.
      * @return The velocity of motion along this path at the specified distance
      *         along this path. Equivalently, this can be viewed as the derivative
      *         of
@@ -186,7 +185,7 @@ public interface Path {
     /**
      * Applies a rotation to this path.
      * 
-     * @param rotation The rotation to apply.
+     * @param angle The rotation to apply.
      * @return The rotated path.
      */
     public Path rotateBy(Rotation2d angle);
