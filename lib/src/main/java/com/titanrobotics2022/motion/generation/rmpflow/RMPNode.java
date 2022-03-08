@@ -42,7 +42,7 @@ public abstract class RMPNode {
 	/**
 	 * Differentiable task map that relates the configuration space to the task
 	 * space.
-	 * Ψ : C -> T
+	 * Ψ : C &gt; T
 	 * 
 	 * @param q The configuration space
 	 * @return The task space

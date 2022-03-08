@@ -15,9 +15,9 @@ dependencies {
     api 'com.github.swri-robotics:bag-reader-java:1.10.3'
 
     // WPILIB Dependencies
-    api 'edu.wpi.first.wpilibj:wpilibj-java:2021.3.1'
-    api 'edu.wpi.first.wpilibNewCommands:wpilibNewCommands-java:2021.3.1'
-    api 'edu.wpi.first.wpimath:wpimath-java:2021.3.1'
+    api 'edu.wpi.first.wpilibj:wpilibj-java:2022.4.1'
+    api 'edu.wpi.first.wpilibNewCommands:wpilibNewCommands-java:2022.4.1'
+    api 'edu.wpi.first.wpimath:wpimath-java:2022.4.1'
 }
 
 task sourceJar(type: Jar) {

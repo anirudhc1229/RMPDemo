@@ -9,7 +9,7 @@ import com.titanrobotics2022.motion.generation.rmpflow.RMPNode;
 
 import org.ejml.simple.SimpleMatrix;
 
-import edu.wpi.first.wpilibj.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 
 import java.time.Duration;
 
@@ -106,7 +106,7 @@ public class PathFollowing extends RMPLeaf {
         double dcdq = theta.getCos() * q_dot.get(0) + theta.getSin() * q_dot.get(1);
         return new SimpleMatrix(2, 2, true,
                 new double[] { -theta.getSin(), theta.getCos(), -phi.getSin(), phi.getCos() })
-                        .scale(dcdq * path.getAngularVelocity(c).getRadians());
+                .scale(dcdq * path.getAngularVelocity(c).getRadians());
     }
 
 }

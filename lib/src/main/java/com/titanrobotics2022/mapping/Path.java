@@ -1,7 +1,7 @@
 package com.titanrobotics2022.mapping;
 
-import edu.wpi.first.wpilibj.geometry.Rotation2d;
-import edu.wpi.first.wpilibj.geometry.Translation2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 
 /**
  * A path along a plane.
@@ -238,7 +238,7 @@ public interface Path {
      * Determines whether this path intersects another path.
      * 
      * <p>
-     * This is equivalent to testing whether {@link #getDistance(other)}
+     * This is equivalent to testing whether {@link #getDistance(Path)}
      * with the desired path is 0. This means that paths which are angent to
      * each other, but do not cross, are considered to intersect by this method.
      * 

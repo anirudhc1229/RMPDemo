@@ -5,7 +5,7 @@ import com.titanrobotics2022.motion.generation.rmpflow.RMPNode;
 
 import org.ejml.simple.SimpleMatrix;
 
-import edu.wpi.first.wpilibj.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose2d;
 
 /**
  * A 1-d distance subtask space collision avoidance between two points.
