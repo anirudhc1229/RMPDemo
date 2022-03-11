@@ -2,6 +2,9 @@ package com.titanrobotics2022.motion.generation.rmpflow;
 
 import java.util.ArrayList;
 
+import org.ejml.data.DMatrixRMaj;
+import org.ejml.dense.row.factory.LinearSolverFactory_DDRM;
+import org.ejml.interfaces.linsol.LinearSolver;
 import org.ejml.simple.SimpleMatrix;
 
 /**
@@ -15,6 +18,8 @@ public abstract class RMPNode {
 	private RMPNode parent; // Parent node
 	private ArrayList<RMPNode> children = new ArrayList<RMPNode>(); // All child nodes
 	private SimpleMatrix x, x_dot, f, m;
+	private LinearSolver<DMatrixRMaj, DMatrixRMaj> solver = LinearSolverFactory_DDRM.pseudoInverse(true);
+
 	// See <a href="https://arxiv.org/abs/1811.07049">RMPFlow Section 3.2</a>
 	// x: current state
 	// x_dot: derivative of current state
@@ -279,7 +284,13 @@ public abstract class RMPNode {
 	 * @return A the desired acceleration which is a(x, x_dot)
 	 */
 	public SimpleMatrix getA() {
-		return m.pseudoInverse().mult(f);
+		solver.setA(m.getDDRM());
+		DMatrixRMaj a = new DMatrixRMaj(m.getDDRM().getNumRows(), 1);
+		solver.solve(f.getDDRM(), a);
+		System.out.println(f.getDDRM().toString());
+		System.out.println(m.getDDRM().toString());
+		System.out.println(a.toString());
+		return new SimpleMatrix(a);
 	} // TODO: Check for exception if inversion fails and return entire RMP tree in
 		// exception throw
 }

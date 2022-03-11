@@ -10,6 +10,7 @@ import com.titanrobotics2022.motion.generation.rmpflow.RMPNode;
 import org.ejml.simple.SimpleMatrix;
 
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 
 import java.time.Duration;
 
@@ -51,50 +52,34 @@ public class PathFollowing extends RMPLeaf {
         this.kSide = K * Math.cos(h * Math.PI / 2);
     }
 
-    public SimpleMatrix solveF(SimpleMatrix x, SimpleMatrix x_dot) {
-
-        Point pos = new Point(x.get(0), x.get(1));
-
-        double c = path.getProgress(pos);
-        double theta = Math.atan2(x_dot.get(1), x_dot.get(0)) - path.getRotation(c).getRadians();
-        double c_dot = x_dot.normF() * Math.cos(theta);
-        double d = v * Duration.between(start, Instant.now()).toMillis() / 1000;
-
-        double y = path.getPos(c).getDistance(pos);
-        double y_dot = x_dot.normF() * Math.sin(theta);
-
-        Point task_a = new Point(P * (v - c_dot) + I * (d - c), A * y - B * y_dot).rotateBy(new Rotation2d(-theta));
-
-        SimpleMatrix a = new SimpleMatrix(2, 1);
-        a.set(0, task_a.getX());
-        a.set(1, task_a.getY());
-
-        SimpleMatrix m = solveM(x, x_dot);
-        SimpleMatrix f = m.mult(a);
-        return f;
-
-    }
-
-    public SimpleMatrix solveM(SimpleMatrix x, SimpleMatrix x_dot) {
-
-        Point pos = new Point(x.get(0), x.get(1));
-
-        double c = path.getProgress(pos);
-        double theta = Math.atan2(x_dot.get(1), x_dot.get(0)) - path.getRotation(c).getRadians();
-
-        Point m = new Point(kFore, kSide).rotateBy(new Rotation2d(-theta));
-        return new SimpleMatrix(2, 2, true, new double[] { m.getX(), 0, 0, m.getY() });
-
+    @Override
+    public SimpleMatrix psi(SimpleMatrix x) {
+        double c = path.getProgress(new Point(x.get(0), x.get(1)));
+        double theta = path.getRotation(c).getDegrees();
+        double s = Math.sin(theta - Math.atan2(path.getPos(c).getY() - x.get(1), path.getPos(c).getX() - x.get(0)));
+        double d = path.getPos(c).getDistance(new Translation2d(x.get(0), x.get(1))) * Math.signum(s);
+        return new SimpleMatrix(2, 1, true, new double[] { c, d });
     }
 
     @Override
-    public SimpleMatrix j(SimpleMatrix q) {
-        Point pos = new Point(q.get(0), q.get(1));
-        double c = path.getProgress(pos);
-        Rotation2d theta = path.getRotation(c);
-        Rotation2d phi = pos.minus(path.getPos(c)).getAngle();
+    public SimpleMatrix solveF(SimpleMatrix x, SimpleMatrix x_dot) {
+        double t = v * Duration.between(start, Instant.now()).toMillis() / 1000;
+        SimpleMatrix a = new SimpleMatrix(2, 1, true,
+                new double[] { P * (v - x_dot.get(0)) + I * (v * t - x.get(0)), A * x.get(1) + B * x_dot.get(1) });
+        return solveM(x, x_dot).mult(a);
+    }
+
+    @Override
+    public SimpleMatrix solveM(SimpleMatrix x, SimpleMatrix x_dot) {
+        return new SimpleMatrix(2, 2, true, new double[] { kFore, 0, 0, kSide });
+    }
+
+    @Override
+    public SimpleMatrix j(SimpleMatrix x) {
+        double c = path.getProgress(new Point(x.get(0), x.get(1)));
+        double theta = path.getRotation(c).getDegrees();
         return new SimpleMatrix(2, 2, true,
-                new double[] { theta.getCos(), theta.getSin(), phi.getCos(), phi.getSin() });
+                new double[] { Math.cos(theta), Math.sin(theta), -Math.sin(theta), Math.cos(theta) });
     }
 
     @Override

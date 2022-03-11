@@ -132,7 +132,7 @@ public class KalmanFilter {
             calcCov(order);
             mult(covs[order], zs[order], out);
         } else {
-            out.set(means[order]);
+            out.setTo(means[order]);
         }
     }
 
@@ -161,7 +161,7 @@ public class KalmanFilter {
         if (((bad_cov >> order) & 1) == 1)
             safeInvert(precs[order], out);
         else
-            out.set(covs[order]);
+            out.setTo(covs[order]);
     }
 
     /**
@@ -207,7 +207,7 @@ public class KalmanFilter {
      */
     public void setCov(int order, DMatrix2x2 cov) {
         safeInvert(cov, precs[order]);
-        covs[order].set(cov);
+        covs[order].setTo(cov);
         bad_cov ^= (bad_cov >> order) & 1;
     }
 
@@ -223,7 +223,7 @@ public class KalmanFilter {
      * @param prec  The new precision matrix.
      */
     public void setPrec(int order, DMatrix2x2 prec) {
-        precs[order].set(prec);
+        precs[order].setTo(prec);
         bad_cov |= 1 << order;
     }
 
