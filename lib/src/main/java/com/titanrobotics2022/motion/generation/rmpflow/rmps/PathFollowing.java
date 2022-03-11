@@ -55,7 +55,7 @@ public class PathFollowing extends RMPLeaf {
     @Override
     public SimpleMatrix psi(SimpleMatrix x) {
         double c = path.getProgress(new Point(x.get(0), x.get(1)));
-        double theta = path.getRotation(c).getDegrees();
+        double theta = path.getRotation(c).getRadians();
         double s = Math.sin(theta - Math.atan2(path.getPos(c).getY() - x.get(1), path.getPos(c).getX() - x.get(0)));
         double d = path.getPos(c).getDistance(new Translation2d(x.get(0), x.get(1))) * Math.signum(s);
         return new SimpleMatrix(2, 1, true, new double[] { c, d });
@@ -77,7 +77,7 @@ public class PathFollowing extends RMPLeaf {
     @Override
     public SimpleMatrix j(SimpleMatrix x) {
         double c = path.getProgress(new Point(x.get(0), x.get(1)));
-        double theta = path.getRotation(c).getDegrees();
+        double theta = path.getRotation(c).getRadians();
         return new SimpleMatrix(2, 2, true,
                 new double[] { Math.cos(theta), Math.sin(theta), -Math.sin(theta), Math.cos(theta) });
     }
