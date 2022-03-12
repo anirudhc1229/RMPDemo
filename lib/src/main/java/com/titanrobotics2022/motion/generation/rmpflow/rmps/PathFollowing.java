@@ -56,8 +56,9 @@ public class PathFollowing extends RMPLeaf {
     public SimpleMatrix psi(SimpleMatrix x) {
         double c = path.getProgress(new Point(x.get(0), x.get(1)));
         double theta = path.getRotation(c).getRadians();
-        double s = Math.sin(theta - Math.atan2(path.getPos(c).getY() - x.get(1), path.getPos(c).getX() - x.get(0)));
-        double d = path.getPos(c).getDistance(new Translation2d(x.get(0), x.get(1))) * Math.signum(s);
+        double s = -Math.signum(
+                Math.sin(theta - Math.atan2(path.getPos(c).getY() - x.get(1), path.getPos(c).getX() - x.get(0))));
+        double d = path.getPos(c).getDistance(new Translation2d(x.get(0), x.get(1))) * s;
         return new SimpleMatrix(2, 1, true, new double[] { c, d });
     }
 
@@ -65,7 +66,7 @@ public class PathFollowing extends RMPLeaf {
     public SimpleMatrix solveF(SimpleMatrix x, SimpleMatrix x_dot) {
         double t = v * Duration.between(start, Instant.now()).toMillis() / 1000;
         SimpleMatrix a = new SimpleMatrix(2, 1, true,
-                new double[] { P * (v - x_dot.get(0)) + I * (v * t - x.get(0)), A * x.get(1) + B * x_dot.get(1) });
+                new double[] { P * (v - x_dot.get(0)) + I * (v * t - x.get(0)), A * x.get(1) - B * x_dot.get(1) });
         return solveM(x, x_dot).mult(a);
     }
 

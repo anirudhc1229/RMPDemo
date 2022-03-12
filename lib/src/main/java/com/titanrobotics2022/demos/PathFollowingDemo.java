@@ -21,20 +21,25 @@ public class PathFollowingDemo {
     public PathFollowingDemo() {
 
         RMPRoot r = new RMPRoot("root");
-        SimpleMatrix x = new SimpleMatrix(1, 2, false, new double[] { 50, 50 });
-        SimpleMatrix x_dot = new SimpleMatrix(1, 2, false, new double[] { 0, 0 });
+        SimpleMatrix x = new SimpleMatrix(1, 2, false, new double[] { 5, 21 });
+        SimpleMatrix x_dot = new SimpleMatrix(1, 2, false, new double[] { 3, 2 });
         SimpleMatrix x_ddot;
-        double v = 0.1, P = 0.1, I = 1, A = 0, B = 0, K = 1, h = 1;
+        double v = 5, P = 0.1, I = 0, A = 1, B = 1, K = 1, h = 0.5;
 
-        SimpleMatrix goal = new SimpleMatrix(1, 2, false, new double[] { 100, 100 });
+        SimpleMatrix goal = new SimpleMatrix(1, 2, false, new double[] { 90, 65 });
         Path path = new LinearSegment(new Point(x.get(0), x.get(1)), new Point(goal.get(0), goal.get(1)));
         PathFollowing pathFollower = new PathFollowing("Path Following Demo", r, path, v, P, I, A, B, K, h);
 
         ArrayList<Double> simulationData = new ArrayList<Double>();
-        double E = 0.1;
-        while (x.minus(goal).normF() > E) {
+        double E = 0.5;
+        int MAX_ITER = 10000;
+        for (int i = 0; Math.abs(x.minus(goal).normF()) > E && i < MAX_ITER; i++) {
+            i++;
             x_ddot = r.solve(x, x_dot);
-            double[] newState = solveIntegration(0.5, x_ddot, x_dot, x);
+            System.out.printf("x: (%f, %f)\n", x.get(0), x.get(1));
+            System.out.printf("x_dot: (%f, %f)\n", x_dot.get(0), x_dot.get(1));
+            System.out.printf("x_ddot: (%f, %f)\n", x_ddot.get(0), x_ddot.get(1));
+            double[] newState = solveIntegration(0.02, x_ddot, x_dot, x);
             x_dot.set(1, newState[3]);
             x_dot.set(0, newState[2]);
             x.set(1, newState[1]);
@@ -61,19 +66,19 @@ public class PathFollowingDemo {
                         g2.setColor(Color.red);
                         g2.fillOval((int) (simulationData.get(i) / 1),
                                 (int) (simulationData.get(i + 1) / 1), 10, 10);
-                    } else if (i == simulationData.size() - 6) { // end
-                        g2.setColor(Color.blue);
-                        g2.fillOval((int) (simulationData.get(i) / 1),
-                                (int) (simulationData.get(i + 1) / 1), 10, 10);
                     } else {
                         g2.setColor(Color.black);
                         g2.fillOval((int) (simulationData.get(i) / 1),
                                 (int) (simulationData.get(i + 1) / 1), 3, 3);
                     }
                 }
+                g2.setColor(Color.blue);
+                g2.fillOval((int) (goal.get(0)),
+                        (int) (goal.get(1)), 10, 10);
             }
         };
         frame.add(panel);
+
     }
 
     public double getMagnitude(double x, double y) {

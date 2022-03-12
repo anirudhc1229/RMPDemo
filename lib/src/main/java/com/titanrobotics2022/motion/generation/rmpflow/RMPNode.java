@@ -287,9 +287,6 @@ public abstract class RMPNode {
 		solver.setA(m.getDDRM());
 		DMatrixRMaj a = new DMatrixRMaj(m.getDDRM().getNumRows(), 1);
 		solver.solve(f.getDDRM(), a);
-		System.out.println(f.getDDRM().toString());
-		System.out.println(m.getDDRM().toString());
-		System.out.println(a.toString());
 		return new SimpleMatrix(a);
 	} // TODO: Check for exception if inversion fails and return entire RMP tree in
 		// exception throw
