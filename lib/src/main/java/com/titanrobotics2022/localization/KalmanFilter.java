@@ -239,6 +239,8 @@ public class KalmanFilter {
     private static void safeInvert(DMatrix2x2 a, DMatrix2x2 inv) {
         if (!invert(a, inv)) {
             double sigma = 1 / (a.a11 + a.a22);
+            if(Double.isNaN(sigma) || Double.isInfinite(sigma))
+                sigma = 0;
             scale(sigma * sigma, a, inv);
         }
     }
