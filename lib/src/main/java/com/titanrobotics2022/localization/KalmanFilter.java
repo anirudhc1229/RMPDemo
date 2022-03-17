@@ -72,14 +72,14 @@ public class KalmanFilter {
             safeInvert(precs[i], covs[i]);
             mult(covs[i], zs[i], means[i]);
         }
-        for (int i = 1; i < zs.length; i++) {
+        for (int i = 0; i < zs.length; i++) {
             alpha = 1;
             for (int j = i + 1; j < zs.length; j++) {
-                alpha *= time / i;
+                alpha *= time / (j-i);
                 scale(alpha, means[j], v);
                 scale(alpha, covs[j], m);
-                addEquals(means[i], means[j]);
-                addEquals(covs[i], covs[j]);
+                addEquals(means[i], v);
+                addEquals(covs[i], m);
             }
             alpha *= time / zs.length;
             scale(alpha, drift, m);
