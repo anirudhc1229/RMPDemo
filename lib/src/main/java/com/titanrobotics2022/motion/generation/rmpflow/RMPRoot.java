@@ -57,7 +57,7 @@ public class RMPRoot extends RMPNode {
 	 * @return A matrix representing the resolved state of the RMP tree.
 	 */
 	public SimpleMatrix solve(SimpleMatrix x, SimpleMatrix x_dot) {
-		System.out.println("Solving...");
+		// System.out.println("Solving...");
 		setRootState(x, x_dot);
 		pushforward();
 		pullback();

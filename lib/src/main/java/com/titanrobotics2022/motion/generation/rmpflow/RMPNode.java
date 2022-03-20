@@ -7,6 +7,8 @@ import org.ejml.dense.row.factory.LinearSolverFactory_DDRM;
 import org.ejml.interfaces.linsol.LinearSolver;
 import org.ejml.simple.SimpleMatrix;
 
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+
 /**
  * Represents a single node and its connections in a Riemannian Motion Policies
  * Tree.

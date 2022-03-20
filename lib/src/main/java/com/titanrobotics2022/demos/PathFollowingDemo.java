@@ -20,22 +20,21 @@ public class PathFollowingDemo {
 
     public PathFollowingDemo() {
 
-        RMPRoot r = new RMPRoot("root");
-        SimpleMatrix x = new SimpleMatrix(1, 2, false, new double[] { 5, 21 });
-        SimpleMatrix x_dot = new SimpleMatrix(1, 2, false, new double[] { 3, 2 });
+        RMPRoot root = new RMPRoot("root");
+        SimpleMatrix x = new SimpleMatrix(1, 2, false, new double[] { 200, 200 });
+        SimpleMatrix x_dot = new SimpleMatrix(1, 2, false, new double[] { 25, -10 });
         SimpleMatrix x_ddot;
-        double v = 5, P = 0.1, I = 0, A = 1, B = 1, K = 1, h = 0.5;
+        double v = 5, P = 1.5, I = 0.5, A = 0.5, B = 0.5, K = 1, h = 0.5;
 
-        SimpleMatrix goal = new SimpleMatrix(1, 2, false, new double[] { 90, 65 });
+        SimpleMatrix goal = new SimpleMatrix(1, 2, false, new double[] { 200, 270 });
         Path path = new LinearSegment(new Point(x.get(0), x.get(1)), new Point(goal.get(0), goal.get(1)));
-        PathFollowing pathFollower = new PathFollowing("Path Following Demo", r, path, v, P, I, A, B, K, h);
+        PathFollowing pathFollower = new PathFollowing("Path Following Demo", root, path, v, P, I, A, B, K, h);
 
         ArrayList<Double> simulationData = new ArrayList<Double>();
         double E = 0.5;
         int MAX_ITER = 10000;
         for (int i = 0; Math.abs(x.minus(goal).normF()) > E && i < MAX_ITER; i++) {
-            i++;
-            x_ddot = r.solve(x, x_dot);
+            x_ddot = root.solve(x, x_dot);
             System.out.printf("x: (%f, %f)\n", x.get(0), x.get(1));
             System.out.printf("x_dot: (%f, %f)\n", x_dot.get(0), x_dot.get(1));
             System.out.printf("x_ddot: (%f, %f)\n", x_ddot.get(0), x_ddot.get(1));
@@ -92,6 +91,10 @@ public class PathFollowingDemo {
         state[1] = x.get(1) + .5 * (x_dot.get(1) + state[3]) * deltaT;
         state[0] = x.get(0) + .5 * (x_dot.get(0) + state[2]) * deltaT;
         return state;
+    }
+
+    public static void main(String[] args) {
+        PathFollowingDemo pfd = new PathFollowingDemo();
     }
 
 }

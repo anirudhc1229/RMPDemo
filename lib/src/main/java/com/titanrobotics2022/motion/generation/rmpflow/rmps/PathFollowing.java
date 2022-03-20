@@ -64,9 +64,11 @@ public class PathFollowing extends RMPLeaf {
 
     @Override
     public SimpleMatrix solveF(SimpleMatrix x, SimpleMatrix x_dot) {
-        double t = v * Duration.between(start, Instant.now()).toMillis() / 1000;
+        System.out.println("getV: " + getV(x));
+        System.out.println("getD: " + getD());
         SimpleMatrix a = new SimpleMatrix(2, 1, true,
-                new double[] { P * (v - x_dot.get(0)) + I * (v * t - x.get(0)), A * x.get(1) - B * x_dot.get(1) });
+                new double[] { P * (getV(x) - x_dot.get(0)) + I * (getD() - x.get(0)),
+                        A * x.get(1) - B * x_dot.get(1) });
         return solveM(x, x_dot).mult(a);
     }
 
@@ -93,6 +95,26 @@ public class PathFollowing extends RMPLeaf {
         return new SimpleMatrix(2, 2, true,
                 new double[] { -theta.getSin(), theta.getCos(), -phi.getSin(), phi.getCos() })
                 .scale(dcdq * path.getAngularVelocity(c).getRadians());
+    }
+
+    public double getV(SimpleMatrix x) {
+        System.out.println("getV x0: " + x.get(0));
+        System.out.println("getV x1: " + x.get(1));
+        double distFromHalf = x.get(0) - 0.5 * path.getLength();
+        System.out.println("dfh: " + distFromHalf);
+        if (distFromHalf > 0)
+            return Math.sqrt(Math.pow(v, 2) - (2 * Math.pow(v, 2) * distFromHalf) / path.getLength());
+        return v;
+    }
+
+    public double getD() {
+        double t = Duration.between(start, Instant.now()).toMillis() / 1000.0;
+        System.out.println("t: " + t);
+        double tAfterHalf = path.getLength() / (2 * v);
+        if (t < tAfterHalf)
+            return v * t;
+        double d = (path.getLength() / 2) + (v * tAfterHalf) - ((Math.pow(v, 2) * tAfterHalf) / (2 * path.getLength()));
+        return Math.min(d, path.getLength());
     }
 
 }
