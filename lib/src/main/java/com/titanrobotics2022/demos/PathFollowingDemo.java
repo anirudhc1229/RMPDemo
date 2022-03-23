@@ -24,9 +24,9 @@ public class PathFollowingDemo {
         SimpleMatrix x = new SimpleMatrix(1, 2, false, new double[] { 100, 100 });
         SimpleMatrix x_dot = new SimpleMatrix(1, 2, false, new double[] { 0, 0 });
         SimpleMatrix x_ddot = new SimpleMatrix(1, 2, false, new double[] { 0, 0 });
-        double v = 5, P = 40, I = 1, A = 40, B = 1, K = 1, h = 0.5;
+        double v = 5, P = 1, I = 0, A = 1, B = 0, K = 1, h = 0.5;
 
-        SimpleMatrix goal = new SimpleMatrix(1, 2, false, new double[] { 200, 200 });
+        SimpleMatrix goal = new SimpleMatrix(1, 2, false, new double[] { 200, 300 });
         Path path = new LinearSegment(new Point(x.get(0), x.get(1)), new Point(goal.get(0), goal.get(1)));
         PathFollowing pathFollower = new PathFollowing("Path Following Demo", root, path, v, P, I, A, B, K, h);
 
