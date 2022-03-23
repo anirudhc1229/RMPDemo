@@ -75,7 +75,7 @@ public class KalmanFilter {
         for (int i = 0; i < zs.length; i++) {
             alpha = 1;
             for (int j = i + 1; j < zs.length; j++) {
-                alpha *= time / (j-i);
+                alpha *= time / (j - i);
                 scale(alpha, means[j], v);
                 scale(alpha, covs[j], m);
                 addEquals(means[i], v);
@@ -239,7 +239,7 @@ public class KalmanFilter {
     private static void safeInvert(DMatrix2x2 a, DMatrix2x2 inv) {
         if (!invert(a, inv)) {
             double sigma = 1 / (a.a11 + a.a22);
-            if(Double.isNaN(sigma) || Double.isInfinite(sigma))
+            if (Double.isNaN(sigma) || Double.isInfinite(sigma))
                 sigma = 0;
             scale(sigma * sigma, a, inv);
         }

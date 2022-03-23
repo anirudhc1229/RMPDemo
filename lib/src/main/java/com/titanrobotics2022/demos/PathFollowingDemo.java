@@ -21,16 +21,46 @@ public class PathFollowingDemo {
     public PathFollowingDemo() {
 
         RMPRoot root = new RMPRoot("root");
-        SimpleMatrix x = new SimpleMatrix(1, 2, false, new double[] { 200, 200 });
-        SimpleMatrix x_dot = new SimpleMatrix(1, 2, false, new double[] { 25, -10 });
-        SimpleMatrix x_ddot;
-        double v = 5, P = 1.5, I = 0.5, A = 0.5, B = 0.5, K = 1, h = 0.5;
+        SimpleMatrix x = new SimpleMatrix(1, 2, false, new double[] { 100, 100 });
+        SimpleMatrix x_dot = new SimpleMatrix(1, 2, false, new double[] { 0, 0 });
+        SimpleMatrix x_ddot = new SimpleMatrix(1, 2, false, new double[] { 0, 0 });
+        double v = 5, P = 40, I = 1, A = 40, B = 1, K = 1, h = 0.5;
 
-        SimpleMatrix goal = new SimpleMatrix(1, 2, false, new double[] { 200, 270 });
+        SimpleMatrix goal = new SimpleMatrix(1, 2, false, new double[] { 200, 200 });
         Path path = new LinearSegment(new Point(x.get(0), x.get(1)), new Point(goal.get(0), goal.get(1)));
         PathFollowing pathFollower = new PathFollowing("Path Following Demo", root, path, v, P, I, A, B, K, h);
 
         ArrayList<Double> simulationData = new ArrayList<Double>();
+        JFrame frame = new JFrame("Path Following Demo");
+        frame.setSize(500, 500);
+        frame.setVisible(true);
+
+        JPanel panel = new JPanel() {
+            @Override
+            public void paintComponent(Graphics g) {
+                super.paintComponent(g);
+                Graphics2D g2 = (Graphics2D) g;
+                g2.setColor(Color.red);
+                g2.fillOval((int) (simulationData.get(0) / 1),
+                        (int) (simulationData.get(1) / 1), 10, 10);
+                for (int i = 6; i < simulationData.size(); i += 6) {
+                    g2.setColor(Color.black);
+                    g2.fillOval((int) (simulationData.get(i) / 1),
+                            (int) (simulationData.get(i + 1) / 1), 3, 3);
+                }
+                g2.setColor(Color.blue);
+                g2.fillOval((int) (goal.get(0)),
+                        (int) (goal.get(1)), 10, 10);
+                g2.drawString("x0: " + simulationData.get(simulationData.size() - 6), 300, 20);
+                g2.drawString("x1: " + simulationData.get(simulationData.size() - 5), 300, 40);
+                g2.drawString("x_dot0: " + simulationData.get(simulationData.size() - 4), 300, 60);
+                g2.drawString("x_dot1: " + simulationData.get(simulationData.size() - 3), 300, 80);
+                g2.drawString("x_ddot0: " + simulationData.get(simulationData.size() - 2), 300, 100);
+                g2.drawString("x_ddot1: " + simulationData.get(simulationData.size() - 1), 300, 120);
+            }
+        };
+        frame.add(panel);
+
         double E = 0.5;
         int MAX_ITER = 10000;
         for (int i = 0; Math.abs(x.minus(goal).normF()) > E && i < MAX_ITER; i++) {
@@ -49,39 +79,9 @@ public class PathFollowingDemo {
             simulationData.add(newState[3]);
             simulationData.add(x_ddot.get(0));
             simulationData.add(x_ddot.get(1));
+            panel.repaint();
         }
 
-        JFrame frame = new JFrame("Path Following Demo");
-        frame.setSize(500, 500);
-        frame.setVisible(true);
-
-        JPanel panel = new JPanel() {
-            @Override
-            public void paintComponent(Graphics g) {
-                super.paintComponent(g);
-                Graphics2D g2 = (Graphics2D) g;
-                for (int i = 0; i < simulationData.size(); i += 6) {
-                    if (i == 0) { // start
-                        g2.setColor(Color.red);
-                        g2.fillOval((int) (simulationData.get(i) / 1),
-                                (int) (simulationData.get(i + 1) / 1), 10, 10);
-                    } else {
-                        g2.setColor(Color.black);
-                        g2.fillOval((int) (simulationData.get(i) / 1),
-                                (int) (simulationData.get(i + 1) / 1), 3, 3);
-                    }
-                }
-                g2.setColor(Color.blue);
-                g2.fillOval((int) (goal.get(0)),
-                        (int) (goal.get(1)), 10, 10);
-            }
-        };
-        frame.add(panel);
-
-    }
-
-    public double getMagnitude(double x, double y) {
-        return Math.sqrt(x * x + y * y);
     }
 
     public static double[] solveIntegration(double deltaT, SimpleMatrix x_ddot, SimpleMatrix x_dot, SimpleMatrix x) {
