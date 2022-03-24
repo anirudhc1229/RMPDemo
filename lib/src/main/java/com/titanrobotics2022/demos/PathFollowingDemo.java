@@ -8,6 +8,7 @@ import javax.swing.JPanel;
 
 import com.titanrobotics2022.mapping.Path;
 import com.titanrobotics2022.motion.generation.rmpflow.RMPRoot;
+import com.titanrobotics2022.motion.generation.rmpflow.rmps.CollisionAvoidance;
 import com.titanrobotics2022.motion.generation.rmpflow.rmps.PathFollowing;
 import com.titanrobotics2022.mapping.LinearSegment;
 import com.titanrobotics2022.mapping.Point;
@@ -21,14 +22,24 @@ public class PathFollowingDemo {
     public PathFollowingDemo() {
 
         RMPRoot root = new RMPRoot("root");
-        SimpleMatrix x = new SimpleMatrix(1, 2, false, new double[] { 100, 100 });
+        SimpleMatrix x = new SimpleMatrix(1, 2, false, new double[] { 50, 50 });
         SimpleMatrix x_dot = new SimpleMatrix(1, 2, false, new double[] { 0, 0 });
         SimpleMatrix x_ddot = new SimpleMatrix(1, 2, false, new double[] { 0, 0 });
-        double v = 5, P = 1, I = 0, A = 1, B = 0, K = 1, h = 0.5;
+        double v = 5, P = 5, I = 0, A = 1, B = 0.5, K = 1, h = 0.5;
 
-        SimpleMatrix goal = new SimpleMatrix(1, 2, false, new double[] { 200, 300 });
+        SimpleMatrix goal = new SimpleMatrix(1, 2, false, new double[] { 250, 400 });
         Path path = new LinearSegment(new Point(x.get(0), x.get(1)), new Point(goal.get(0), goal.get(1)));
-        PathFollowing pathFollower = new PathFollowing("Path Following Demo", root, path, v, P, I, A, B, K, h);
+        PathFollowing follower = new PathFollowing("Path Following Demo", root, path, v, P, I, A, B, K, h);
+
+        ArrayList<CollisionAvoidance> obstacles = new ArrayList<>();
+        obstacles.add(new CollisionAvoidance("Collision Avoidance Demo", root,
+                new SimpleMatrix(1, 2, false, new double[] { 150, 200 }), 10, 1, 1, 1));
+        obstacles.add(new CollisionAvoidance("Collision Avoidance Demo", root,
+                new SimpleMatrix(1, 2, false, new double[] { 100, 150 }), 5,
+                1, 1, 1));
+        obstacles.add(new CollisionAvoidance("Collision Avoidance Demo", root,
+                new SimpleMatrix(1, 2, false, new double[] { 200, 300 }), 15,
+                1, 1, 1));
 
         ArrayList<Double> simulationData = new ArrayList<Double>();
         JFrame frame = new JFrame("Path Following Demo");
@@ -40,23 +51,32 @@ public class PathFollowingDemo {
             public void paintComponent(Graphics g) {
                 super.paintComponent(g);
                 Graphics2D g2 = (Graphics2D) g;
-                g2.setColor(Color.red);
+                g2.setColor(Color.red); // obs
+                for (CollisionAvoidance obs : obstacles)
+                    g2.fillOval((int) (obs.getCenter().get(0) / 1),
+                            (int) (obs.getCenter().get(1) / 1), (int) obs.getRadius(), (int) obs.getRadius());
                 g2.fillOval((int) (simulationData.get(0) / 1),
                         (int) (simulationData.get(1) / 1), 10, 10);
-                for (int i = 6; i < simulationData.size(); i += 6) {
+                g2.setColor(Color.green); // start
+                g2.fillOval((int) (simulationData.get(0) / 1),
+                        (int) (simulationData.get(1) / 1), 10, 10);
+                for (int i = 6; i < simulationData.size(); i += 6) { // robot path
                     g2.setColor(Color.black);
                     g2.fillOval((int) (simulationData.get(i) / 1),
                             (int) (simulationData.get(i + 1) / 1), 3, 3);
                 }
-                g2.setColor(Color.blue);
+                g2.setColor(Color.blue); // goal
                 g2.fillOval((int) (goal.get(0)),
                         (int) (goal.get(1)), 10, 10);
+                // state metrics
                 g2.drawString("x0: " + simulationData.get(simulationData.size() - 6), 300, 20);
                 g2.drawString("x1: " + simulationData.get(simulationData.size() - 5), 300, 40);
                 g2.drawString("x_dot0: " + simulationData.get(simulationData.size() - 4), 300, 60);
                 g2.drawString("x_dot1: " + simulationData.get(simulationData.size() - 3), 300, 80);
                 g2.drawString("x_ddot0: " + simulationData.get(simulationData.size() - 2), 300, 100);
                 g2.drawString("x_ddot1: " + simulationData.get(simulationData.size() - 1), 300, 120);
+                g2.drawRect((int) (simulationData.get(simulationData.size() - 6) / 1),
+                        (int) (simulationData.get(simulationData.size() - 5) / 1), 10, 10);
             }
         };
         frame.add(panel);
@@ -94,7 +114,7 @@ public class PathFollowingDemo {
     }
 
     public static void main(String[] args) {
-        PathFollowingDemo pfd = new PathFollowingDemo();
+        new PathFollowingDemo();
     }
 
 }
