@@ -17,7 +17,7 @@ import java.time.Duration;
 public class PathFollowing extends RMPLeaf {
 
     private Path path;
-    private double v, P, I, A, B, kFore, kSide;
+    private double v, P, I, A, B, maxAcc, kFore, kSide;
     private Instant start = Instant.now();
 
     // Compute desired vertical acceleration (PI loop)
@@ -40,7 +40,7 @@ public class PathFollowing extends RMPLeaf {
     // Pullback desired combined acceleration vector and weight matrix
 
     public PathFollowing(String name, RMPNode parent, Path path, double v, double P, double I, double A, double B,
-            double K, double h) {
+            double K, double h, double maxAcc) {
         super(name, parent);
         this.path = path;
         this.v = v;
@@ -48,6 +48,7 @@ public class PathFollowing extends RMPLeaf {
         this.I = I;
         this.A = A;
         this.B = B;
+        this.maxAcc = maxAcc;
         this.kFore = K * Math.sin(h * Math.PI / 2);
         this.kSide = K * Math.cos(h * Math.PI / 2);
     }
@@ -64,12 +65,13 @@ public class PathFollowing extends RMPLeaf {
 
     @Override
     public SimpleMatrix solveF(SimpleMatrix x, SimpleMatrix x_dot) {
-        System.out.println("getV: " + getV(x));
-        System.out.println("getD: " + getD());
+        // System.out.println("getV: " + getV(x));
+        // System.out.println("getD: " + getD());
         SimpleMatrix a = new SimpleMatrix(2, 1, true,
                 new double[] { P * (getV(x) - x_dot.get(0)) + I * (getD() - x.get(0)),
                         A * x.get(1) - B * x_dot.get(1) });
-        // old a
+        normalizeA(a);
+        // old a:
         // SimpleMatrix a = new SimpleMatrix(2, 1, true,
         // new double[] {
         // P * (v - x_dot.get(0))
@@ -77,6 +79,22 @@ public class PathFollowing extends RMPLeaf {
         // x.get(0)),
         // A * x.get(1) - B * x_dot.get(1) });
         return solveM(x, x_dot).mult(a);
+    }
+
+    public void normalizeA(SimpleMatrix a) {
+        if (Math.abs(a.get(0)) < maxAcc && Math.abs(a.get(1)) < maxAcc)
+            return;
+        // System.out.println("a orig:\n" + a.toString());
+        if (Math.abs(a.get(0)) > Math.abs(a.get(1))) {
+            double ratio = Math.abs(a.get(1) / a.get(0));
+            a.set(0, Math.signum(a.get(0)) * maxAcc);
+            a.set(1, Math.signum(a.get(1)) * maxAcc * ratio);
+        } else {
+            double ratio = Math.abs(a.get(0) / a.get(1));
+            a.set(1, Math.signum(a.get(1)) * maxAcc);
+            a.set(0, Math.signum(a.get(0)) * maxAcc * ratio);
+        }
+        // System.out.println("a after:\n" + a.toString());
     }
 
     @Override
@@ -106,7 +124,7 @@ public class PathFollowing extends RMPLeaf {
 
     public double getV(SimpleMatrix x) {
         double distFromHalf = x.get(0) - 0.5 * path.getLength();
-        System.out.println("dfh: " + distFromHalf);
+        // System.out.println("dfh: " + distFromHalf);
         if (distFromHalf > 0)
             return Math.sqrt(Math.pow(v, 2) - (2 * Math.pow(v, 2) * distFromHalf) / path.getLength());
         return v;

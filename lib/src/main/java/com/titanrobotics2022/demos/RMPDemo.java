@@ -15,21 +15,26 @@ import com.titanrobotics2022.mapping.Point;
 
 import org.ejml.simple.SimpleMatrix;
 
+import edu.wpi.first.math.geometry.Translation2d;
+
 import java.util.ArrayList;
 
-public class PathFollowingDemo {
+public class RMPDemo {
 
-    public PathFollowingDemo() {
+    public RMPDemo() {
+
+        double step = 0.02;
+        double speed = 0.8; // [0.0, 1.0]
 
         RMPRoot root = new RMPRoot("root");
         SimpleMatrix x = new SimpleMatrix(1, 2, false, new double[] { 50, 50 });
         SimpleMatrix x_dot = new SimpleMatrix(1, 2, false, new double[] { 0, 0 });
         SimpleMatrix x_ddot = new SimpleMatrix(1, 2, false, new double[] { 0, 0 });
-        double v = 5, P = 5, I = 0, A = 1, B = 0.5, K = 1, h = 0.5;
+        double v = 5, P = 5, I = 0, A = 1, B = 0.5, K = 1, h = 0.5, maxAcc = 10;
 
         SimpleMatrix goal = new SimpleMatrix(1, 2, false, new double[] { 250, 400 });
         Path path = new LinearSegment(new Point(x.get(0), x.get(1)), new Point(goal.get(0), goal.get(1)));
-        PathFollowing follower = new PathFollowing("Path Following Demo", root, path, v, P, I, A, B, K, h);
+        PathFollowing follower = new PathFollowing("Path Following Demo", root, path, v, P, I, A, B, K, h, maxAcc);
 
         ArrayList<CollisionAvoidance> obstacles = new ArrayList<>();
         obstacles.add(new CollisionAvoidance("Collision Avoidance Demo", root,
@@ -75,20 +80,23 @@ public class PathFollowingDemo {
                 g2.drawString("x_dot1: " + simulationData.get(simulationData.size() - 3), 300, 80);
                 g2.drawString("x_ddot0: " + simulationData.get(simulationData.size() - 2), 300, 100);
                 g2.drawString("x_ddot1: " + simulationData.get(simulationData.size() - 1), 300, 120);
+                g2.drawString("t: " + simulationData.size() / 6 * step, 300, 140);
                 g2.drawRect((int) (simulationData.get(simulationData.size() - 6) / 1),
                         (int) (simulationData.get(simulationData.size() - 5) / 1), 10, 10);
             }
         };
         frame.add(panel);
 
-        double E = 0.5;
-        int MAX_ITER = 10000;
+        double E = 0.005
+                * new Translation2d(x.get(0), x.get(1)).getDistance(new Translation2d(goal.get(0), goal.get(1)));
+        int MAX_ITER = 100000;
         for (int i = 0; Math.abs(x.minus(goal).normF()) > E && i < MAX_ITER; i++) {
             x_ddot = root.solve(x, x_dot);
-            System.out.printf("x: (%f, %f)\n", x.get(0), x.get(1));
-            System.out.printf("x_dot: (%f, %f)\n", x_dot.get(0), x_dot.get(1));
-            System.out.printf("x_ddot: (%f, %f)\n", x_ddot.get(0), x_ddot.get(1));
-            double[] newState = solveIntegration(0.02, x_ddot, x_dot, x);
+            // System.out.printf("x: (%f, %f)\n", x.get(0), x.get(1));
+            // System.out.printf("x_dot: (%f, %f)\n", x_dot.get(0), x_dot.get(1));
+            // System.out.printf("x_ddot: (%f, %f)\n", x_ddot.get(0), x_ddot.get(1));
+            // System.out.printf("t: %f\n", step * i);
+            double[] newState = solveIntegration(step, x_ddot, x_dot, x);
             x_dot.set(1, newState[3]);
             x_dot.set(0, newState[2]);
             x.set(1, newState[1]);
@@ -100,6 +108,10 @@ public class PathFollowingDemo {
             simulationData.add(x_ddot.get(0));
             simulationData.add(x_ddot.get(1));
             panel.repaint();
+            try {
+                Thread.sleep((long) (100 - (speed / 10 + 0.9) * 100));
+            } catch (InterruptedException e) {
+            }
         }
 
     }
@@ -114,7 +126,7 @@ public class PathFollowingDemo {
     }
 
     public static void main(String[] args) {
-        new PathFollowingDemo();
+        new RMPDemo();
     }
 
 }
