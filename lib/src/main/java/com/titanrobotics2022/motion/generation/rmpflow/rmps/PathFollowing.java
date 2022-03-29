@@ -1,7 +1,5 @@
 package com.titanrobotics2022.motion.generation.rmpflow.rmps;
 
-import java.time.Instant;
-
 import com.titanrobotics2022.mapping.Path;
 import com.titanrobotics2022.mapping.Point;
 import com.titanrobotics2022.motion.generation.rmpflow.RMPLeaf;
@@ -12,13 +10,11 @@ import org.ejml.simple.SimpleMatrix;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 
-import java.time.Duration;
-
 public class PathFollowing extends RMPLeaf {
 
     private Path path;
     private double v, P, I, A, B, maxAcc, kFore, kSide;
-    private Instant start = Instant.now();
+    private double err = 0;
 
     // Compute desired vertical acceleration (PI loop)
     // P(c_dot - v) + I(c - d)
@@ -65,36 +61,16 @@ public class PathFollowing extends RMPLeaf {
 
     @Override
     public SimpleMatrix solveF(SimpleMatrix x, SimpleMatrix x_dot) {
-        // System.out.println("getV: " + getV(x));
-        // System.out.println("getD: " + getD());
+        err += getV(x) - x_dot.get(0);
         SimpleMatrix a = new SimpleMatrix(2, 1, true,
-                new double[] { P * (getV(x) - x_dot.get(0)) + I * (getD() - x.get(0)),
+                new double[] { P * (getV(x) - x_dot.get(0)) + I * err,
                         A * x.get(1) - B * x_dot.get(1) });
-        normalizeA(a);
-        // old a:
-        // SimpleMatrix a = new SimpleMatrix(2, 1, true,
-        // new double[] {
-        // P * (v - x_dot.get(0))
-        // + I * (v * Duration.between(start, Instant.now()).toMillis() / 1000.0 -
-        // x.get(0)),
-        // A * x.get(1) - B * x_dot.get(1) });
         return solveM(x, x_dot).mult(a);
     }
 
-    public void normalizeA(SimpleMatrix a) {
-        if (Math.abs(a.get(0)) < maxAcc && Math.abs(a.get(1)) < maxAcc)
-            return;
-        // System.out.println("a orig:\n" + a.toString());
-        if (Math.abs(a.get(0)) > Math.abs(a.get(1))) {
-            double ratio = Math.abs(a.get(1) / a.get(0));
-            a.set(0, Math.signum(a.get(0)) * maxAcc);
-            a.set(1, Math.signum(a.get(1)) * maxAcc * ratio);
-        } else {
-            double ratio = Math.abs(a.get(0) / a.get(1));
-            a.set(1, Math.signum(a.get(1)) * maxAcc);
-            a.set(0, Math.signum(a.get(0)) * maxAcc * ratio);
-        }
-        // System.out.println("a after:\n" + a.toString());
+    public double getV(SimpleMatrix x) {
+        double dist = path.getLength() - x.get(0);
+        return Math.min(v, Math.sqrt(2 * maxAcc * dist));
     }
 
     @Override
@@ -103,8 +79,8 @@ public class PathFollowing extends RMPLeaf {
     }
 
     @Override
-    public SimpleMatrix j(SimpleMatrix x) {
-        double c = path.getProgress(new Point(x.get(0), x.get(1)));
+    public SimpleMatrix j(SimpleMatrix q) {
+        double c = path.getProgress(new Point(q.get(0), q.get(1)));
         double theta = path.getRotation(c).getRadians();
         return new SimpleMatrix(2, 2, true,
                 new double[] { Math.cos(theta), Math.sin(theta), -Math.sin(theta), Math.cos(theta) });
@@ -120,25 +96,6 @@ public class PathFollowing extends RMPLeaf {
         return new SimpleMatrix(2, 2, true,
                 new double[] { -theta.getSin(), theta.getCos(), -phi.getSin(), phi.getCos() })
                 .scale(dcdq * path.getAngularVelocity(c).getRadians());
-    }
-
-    public double getV(SimpleMatrix x) {
-        double distFromHalf = x.get(0) - 0.5 * path.getLength();
-        // System.out.println("dfh: " + distFromHalf);
-        if (distFromHalf > 0)
-            return Math.sqrt(Math.pow(v, 2) - (2 * Math.pow(v, 2) * distFromHalf) / path.getLength());
-        return v;
-    }
-
-    public double getD() {
-        double t = Duration.between(start, Instant.now()).toMillis() / 1000.0;
-        // System.out.println("t: " + t);
-        double tAfterHalf = path.getLength() / (2 * v);
-        if (t < tAfterHalf)
-            return v * t;
-        double d = (path.getLength() / 2) + (v * tAfterHalf)
-                - ((Math.pow(v, 2) * tAfterHalf * tAfterHalf) / (2 * path.getLength()));
-        return Math.min(d, path.getLength());
     }
 
 }

@@ -15,8 +15,6 @@ import com.titanrobotics2022.mapping.Point;
 
 import org.ejml.simple.SimpleMatrix;
 
-import edu.wpi.first.math.geometry.Translation2d;
-
 import java.util.ArrayList;
 
 public class RMPDemo {
@@ -24,13 +22,13 @@ public class RMPDemo {
     public RMPDemo() {
 
         double step = 0.02;
-        double speed = 0.8; // [0.0, 1.0]
+        double speed = 0.9; // [0.0, 1.0]
 
         RMPRoot root = new RMPRoot("root");
         SimpleMatrix x = new SimpleMatrix(1, 2, false, new double[] { 50, 50 });
         SimpleMatrix x_dot = new SimpleMatrix(1, 2, false, new double[] { 0, 0 });
         SimpleMatrix x_ddot = new SimpleMatrix(1, 2, false, new double[] { 0, 0 });
-        double v = 5, P = 5, I = 0, A = 1, B = 0.5, K = 1, h = 0.5, maxAcc = 10;
+        double v = 5, P = 5, I = 0, A = 1, B = 0.5, K = 1, h = 0.5, maxAcc = 1;
 
         SimpleMatrix goal = new SimpleMatrix(1, 2, false, new double[] { 250, 400 });
         Path path = new LinearSegment(new Point(x.get(0), x.get(1)), new Point(goal.get(0), goal.get(1)));
@@ -87,8 +85,7 @@ public class RMPDemo {
         };
         frame.add(panel);
 
-        double E = 0.005
-                * new Translation2d(x.get(0), x.get(1)).getDistance(new Translation2d(goal.get(0), goal.get(1)));
+        double E = 0.1;
         int MAX_ITER = 100000;
         for (int i = 0; Math.abs(x.minus(goal).normF()) > E && i < MAX_ITER; i++) {
             x_ddot = root.solve(x, x_dot);
