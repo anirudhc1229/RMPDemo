@@ -21,27 +21,27 @@ public class RMPDemo {
 
     public RMPDemo() {
 
-        double step = 0.02;
-        double speed = 0.9; // [0.0, 1.0]
+        double step = 0.02; // Default: 0.02
+        double speed = 0.8; // [0.0, 1.0]
 
         RMPRoot root = new RMPRoot("root");
         SimpleMatrix x = new SimpleMatrix(1, 2, false, new double[] { 50, 50 });
         SimpleMatrix x_dot = new SimpleMatrix(1, 2, false, new double[] { 0, 0 });
         SimpleMatrix x_ddot = new SimpleMatrix(1, 2, false, new double[] { 0, 0 });
-        double v = 5, P = 5, I = 0, A = 1, B = 0.5, K = 1, h = 0.5, maxAcc = 1;
+        double v = 8, P = 5, I = 0, A = 1, B = 0.5, K = 1, h = 0.5, maxAcc = 2;
 
-        SimpleMatrix goal = new SimpleMatrix(1, 2, false, new double[] { 250, 400 });
+        SimpleMatrix goal = new SimpleMatrix(1, 2, false, new double[] { 250, 350 });
         Path path = new LinearSegment(new Point(x.get(0), x.get(1)), new Point(goal.get(0), goal.get(1)));
         PathFollowing follower = new PathFollowing("Path Following Demo", root, path, v, P, I, A, B, K, h, maxAcc);
 
         ArrayList<CollisionAvoidance> obstacles = new ArrayList<>();
-        obstacles.add(new CollisionAvoidance("Collision Avoidance Demo", root,
-                new SimpleMatrix(1, 2, false, new double[] { 150, 200 }), 10, 1, 1, 1));
-        obstacles.add(new CollisionAvoidance("Collision Avoidance Demo", root,
-                new SimpleMatrix(1, 2, false, new double[] { 100, 150 }), 5,
+        obstacles.add(new CollisionAvoidance("Obstacle 1", root,
+                new SimpleMatrix(1, 2, false, new double[] { 100, 100 }), 10,
                 1, 1, 1));
-        obstacles.add(new CollisionAvoidance("Collision Avoidance Demo", root,
-                new SimpleMatrix(1, 2, false, new double[] { 200, 300 }), 15,
+        obstacles.add(new CollisionAvoidance("Obstacle 2", root,
+                new SimpleMatrix(1, 2, false, new double[] { 150, 200 }), 15, 1, 1, 1));
+        obstacles.add(new CollisionAvoidance("Obstacle 3", root,
+                new SimpleMatrix(1, 2, false, new double[] { 200, 300 }), 20,
                 1, 1, 1));
 
         ArrayList<Double> simulationData = new ArrayList<Double>();
@@ -63,7 +63,7 @@ public class RMPDemo {
                 g2.setColor(Color.green); // start
                 g2.fillOval((int) (simulationData.get(0) / 1),
                         (int) (simulationData.get(1) / 1), 10, 10);
-                for (int i = 6; i < simulationData.size(); i += 6) { // robot path
+                for (int i = 6; i < simulationData.size(); i += 6) { // path
                     g2.setColor(Color.black);
                     g2.fillOval((int) (simulationData.get(i) / 1),
                             (int) (simulationData.get(i + 1) / 1), 3, 3);
@@ -85,9 +85,9 @@ public class RMPDemo {
         };
         frame.add(panel);
 
-        double E = 0.1;
+        double tolerance = 0.1;
         int MAX_ITER = 100000;
-        for (int i = 0; Math.abs(x.minus(goal).normF()) > E && i < MAX_ITER; i++) {
+        for (int i = 0; Math.abs(x.minus(goal).normF()) > tolerance && i < MAX_ITER; i++) {
             x_ddot = root.solve(x, x_dot);
             // System.out.printf("x: (%f, %f)\n", x.get(0), x.get(1));
             // System.out.printf("x_dot: (%f, %f)\n", x_dot.get(0), x_dot.get(1));
