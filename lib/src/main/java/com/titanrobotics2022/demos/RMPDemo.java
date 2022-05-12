@@ -3,6 +3,8 @@ package com.titanrobotics2022.demos;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+
+import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
@@ -34,6 +36,19 @@ public class RMPDemo {
 
         SimpleMatrix goal = new SimpleMatrix(1, 2, false,
                 new double[] { Math.random() * 1300 + 200, Math.random() * 600 + 200 });
+        while (goal.get(0) > 0 && goal.get(0) < width && Math.abs(x.get(0) - goal.get(0)) < 300) {
+            if (x.get(0) > goal.get(0))
+                goal.set(0, goal.get(0) - 1);
+            else
+                goal.set(0, goal.get(0) + 1);
+        }
+        while (goal.get(1) > 0 && goal.get(1) < height && Math.abs(x.get(1) - goal.get(1)) < 300) {
+            if (x.get(1) > goal.get(1))
+                goal.set(1, goal.get(1) - 1);
+            else
+                goal.set(1, goal.get(1) + 1);
+        }
+
         Path path = new LinearSegment(new Point(x.get(0), x.get(1)), new Point(goal.get(0), goal.get(1)));
         PathFollowing follower = new PathFollowing("Path Following Demo", root, path, v, P, I, A, B, K, h, maxAcc);
 
