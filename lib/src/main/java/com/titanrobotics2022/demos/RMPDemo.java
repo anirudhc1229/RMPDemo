@@ -22,31 +22,48 @@ public class RMPDemo {
     public RMPDemo() {
 
         double step = 0.02; // Default: 0.02
-        double speed = 0.8; // [0.0, 1.0]
+        double speed = 0.75; // [0.0, 1.0]
+        int width = 1920, height = 1080;
 
         RMPRoot root = new RMPRoot("root");
-        SimpleMatrix x = new SimpleMatrix(1, 2, false, new double[] { 50, 50 });
+        SimpleMatrix x = new SimpleMatrix(1, 2, false,
+                new double[] { Math.random() * (width - 400) + 200, Math.random() * (height - 400) + 200 });
         SimpleMatrix x_dot = new SimpleMatrix(1, 2, false, new double[] { 0, 0 });
         SimpleMatrix x_ddot = new SimpleMatrix(1, 2, false, new double[] { 0, 0 });
         double v = 8, P = 5, I = 0, A = 1, B = 0.5, K = 1, h = 0.5, maxAcc = 2;
 
-        SimpleMatrix goal = new SimpleMatrix(1, 2, false, new double[] { 250, 350 });
+        SimpleMatrix goal = new SimpleMatrix(1, 2, false,
+                new double[] { Math.random() * 1300 + 200, Math.random() * 600 + 200 });
         Path path = new LinearSegment(new Point(x.get(0), x.get(1)), new Point(goal.get(0), goal.get(1)));
         PathFollowing follower = new PathFollowing("Path Following Demo", root, path, v, P, I, A, B, K, h, maxAcc);
 
+        // RANDOMIZED obs locations
         ArrayList<CollisionAvoidance> obstacles = new ArrayList<>();
-        obstacles.add(new CollisionAvoidance("Obstacle 1", root,
-                new SimpleMatrix(1, 2, false, new double[] { 100, 100 }), 10,
-                1, 1, 1));
-        obstacles.add(new CollisionAvoidance("Obstacle 2", root,
-                new SimpleMatrix(1, 2, false, new double[] { 150, 200 }), 15, 1, 1, 1));
-        obstacles.add(new CollisionAvoidance("Obstacle 3", root,
-                new SimpleMatrix(1, 2, false, new double[] { 200, 300 }), 20,
-                1, 1, 1));
+        int numObstacles = 10;
+        for (int i = 0; i < numObstacles; i++) {
+            obstacles.add(new CollisionAvoidance(String.format("Obstacle %d", i), root,
+                    new SimpleMatrix(1, 2, false,
+                            new double[] {
+                                    Math.random() * (Math.max(x.get(0), goal.get(0)) - Math.min(x.get(0), goal.get(0)))
+                                            + Math.min(x.get(0), goal.get(0)),
+                                    Math.random() * (Math.max(x.get(1), goal.get(1)) - Math.min(x.get(1), goal.get(1)))
+                                            + Math.min(x.get(1), goal.get(1)) }),
+                    Math.random() * 15 + 5, 1, 1, 1));
+        }
+
+        // STANDARD obs locations
+        // obstacles.add(new CollisionAvoidance("Obstacle 1", root,
+        // new SimpleMatrix(1, 2, false, new double[] { 100, 100 }), 10,
+        // 1, 1, 1));
+        // obstacles.add(new CollisionAvoidance("Obstacle 2", root,
+        // new SimpleMatrix(1, 2, false, new double[] { 150, 200 }), 15, 1, 1, 1));
+        // obstacles.add(new CollisionAvoidance("Obstacle 3", root,
+        // new SimpleMatrix(1, 2, false, new double[] { 200, 300 }), 20,
+        // 1, 1, 1));
 
         ArrayList<Double> simulationData = new ArrayList<Double>();
         JFrame frame = new JFrame("Path Following Demo");
-        frame.setSize(500, 500);
+        frame.setSize(width, height);
         frame.setVisible(true);
 
         JPanel panel = new JPanel() {
@@ -70,15 +87,15 @@ public class RMPDemo {
                 }
                 g2.setColor(Color.blue); // goal
                 g2.fillOval((int) (goal.get(0)),
-                        (int) (goal.get(1)), 10, 10);
+                        (int) (goal.get(1)), 25, 25);
                 // state metrics
-                g2.drawString("x0: " + simulationData.get(simulationData.size() - 6), 300, 20);
-                g2.drawString("x1: " + simulationData.get(simulationData.size() - 5), 300, 40);
-                g2.drawString("x_dot0: " + simulationData.get(simulationData.size() - 4), 300, 60);
-                g2.drawString("x_dot1: " + simulationData.get(simulationData.size() - 3), 300, 80);
-                g2.drawString("x_ddot0: " + simulationData.get(simulationData.size() - 2), 300, 100);
-                g2.drawString("x_ddot1: " + simulationData.get(simulationData.size() - 1), 300, 120);
-                g2.drawString("t: " + simulationData.size() / 6 * step, 300, 140);
+                g2.drawString("x0: " + simulationData.get(simulationData.size() - 6), (int) (width * 0.7), 20);
+                g2.drawString("x1: " + simulationData.get(simulationData.size() - 5), (int) (width * 0.7), 40);
+                g2.drawString("x_dot0: " + simulationData.get(simulationData.size() - 4), (int) (width * 0.7), 60);
+                g2.drawString("x_dot1: " + simulationData.get(simulationData.size() - 3), (int) (width * 0.7), 80);
+                g2.drawString("x_ddot0: " + simulationData.get(simulationData.size() - 2), (int) (width * 0.7), 100);
+                g2.drawString("x_ddot1: " + simulationData.get(simulationData.size() - 1), (int) (width * 0.7), 120);
+                g2.drawString("t: " + simulationData.size() / 6 * step, 1350, 140);
                 g2.drawRect((int) (simulationData.get(simulationData.size() - 6) / 1),
                         (int) (simulationData.get(simulationData.size() - 5) / 1), 10, 10);
             }
