@@ -4,7 +4,6 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 
-import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
@@ -54,7 +53,7 @@ public class RMPDemo {
 
         // RANDOMIZED obs locations
         ArrayList<CollisionAvoidance> obstacles = new ArrayList<>();
-        int numObstacles = 10;
+        int numObstacles = 25;
         for (int i = 0; i < numObstacles; i++) {
             obstacles.add(new CollisionAvoidance(String.format("Obstacle %d", i), root,
                     new SimpleMatrix(1, 2, false,
@@ -63,7 +62,7 @@ public class RMPDemo {
                                             + Math.min(x.get(0), goal.get(0)),
                                     Math.random() * (Math.max(x.get(1), goal.get(1)) - Math.min(x.get(1), goal.get(1)))
                                             + Math.min(x.get(1), goal.get(1)) }),
-                    Math.random() * 15 + 5, 1, 1, 1));
+                    Math.random() * 20 + 5, 0.2, 1e-5, 0.0));
         }
 
         // STANDARD obs locations
