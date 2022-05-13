@@ -16,6 +16,8 @@ import com.titanrobotics2022.mapping.Point;
 
 import org.ejml.simple.SimpleMatrix;
 
+import edu.wpi.first.math.geometry.Translation2d;
+
 import java.util.ArrayList;
 
 public class RMPDemo {
@@ -33,35 +35,43 @@ public class RMPDemo {
         SimpleMatrix x_ddot = new SimpleMatrix(1, 2, false, new double[] { 0, 0 });
         double v = 8, P = 5, I = 0, A = 1, B = 0.5, K = 1, h = 0.5, maxAcc = 2;
 
+        double goal_x = Math.random() * 1300 + 200, goal_y = Math.random() * 600 + 200;
+        while (new Translation2d(goal_x, goal_y).getDistance(new Translation2d(x.get(0), x.get(1))) < 300) {
+            goal_x = Math.random() * 1300 + 200;
+            goal_y = Math.random() * 600 + 200;
+        }
         SimpleMatrix goal = new SimpleMatrix(1, 2, false,
-                new double[] { Math.random() * 1300 + 200, Math.random() * 600 + 200 });
-        while (goal.get(0) > 0 && goal.get(0) < width && Math.abs(x.get(0) - goal.get(0)) < 300) {
-            if (x.get(0) > goal.get(0))
-                goal.set(0, goal.get(0) - 1);
-            else
-                goal.set(0, goal.get(0) + 1);
-        }
-        while (goal.get(1) > 0 && goal.get(1) < height && Math.abs(x.get(1) - goal.get(1)) < 300) {
-            if (x.get(1) > goal.get(1))
-                goal.set(1, goal.get(1) - 1);
-            else
-                goal.set(1, goal.get(1) + 1);
-        }
+                new double[] { goal_x, goal_y });
 
         Path path = new LinearSegment(new Point(x.get(0), x.get(1)), new Point(goal.get(0), goal.get(1)));
         PathFollowing follower = new PathFollowing("Path Following Demo", root, path, v, P, I, A, B, K, h, maxAcc);
 
         // RANDOMIZED obs locations
         ArrayList<CollisionAvoidance> obstacles = new ArrayList<>();
-        int numObstacles = 25;
+        int numObstacles = 30;
+        double minDist = 50;
         for (int i = 0; i < numObstacles; i++) {
+            boolean goodPos = false;
+            double x_pos = 0, y_pos = 0;
+            while (!goodPos) {
+                x_pos = Math.random() * (Math.max(x.get(0), goal.get(0)) - Math.min(x.get(0), goal.get(0)))
+                        + Math.min(x.get(0), goal.get(0));
+                y_pos = Math.random() * (Math.max(x.get(1), goal.get(1)) - Math.min(x.get(1), goal.get(1)))
+                        + Math.min(x.get(1), goal.get(1));
+                boolean found = false;
+                for (CollisionAvoidance cur : obstacles)
+                    if (new Translation2d(cur.getCenter().get(0), cur.getCenter().get(1))
+                            .getDistance(new Translation2d(x_pos, y_pos)) < minDist)
+                        found = true;
+                goodPos = !found;
+                if (new Translation2d(x.get(0), x.get(1))
+                        .getDistance(new Translation2d(x_pos, y_pos)) < minDist
+                        || new Translation2d(goal.get(0), goal.get(1))
+                                .getDistance(new Translation2d(x_pos, y_pos)) < minDist)
+                    goodPos = false;
+            }
             obstacles.add(new CollisionAvoidance(String.format("Obstacle %d", i), root,
-                    new SimpleMatrix(1, 2, false,
-                            new double[] {
-                                    Math.random() * (Math.max(x.get(0), goal.get(0)) - Math.min(x.get(0), goal.get(0)))
-                                            + Math.min(x.get(0), goal.get(0)),
-                                    Math.random() * (Math.max(x.get(1), goal.get(1)) - Math.min(x.get(1), goal.get(1)))
-                                            + Math.min(x.get(1), goal.get(1)) }),
+                    new SimpleMatrix(1, 2, false, new double[] { x_pos, y_pos }),
                     Math.random() * 20 + 5, 0.2, 1e-5, 0.0));
         }
 
