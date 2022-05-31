@@ -25,7 +25,7 @@ public class RMPDemo {
         public RMPDemo() {
 
                 double step = 0.02; // Default: 0.02
-                double speed = 0.75; // [0.0, 1.0]
+                double speed = 0.7; // [0.0, 1.0]
                 int width = 1920, height = 1080;
 
                 RMPRoot root = new RMPRoot("root");
